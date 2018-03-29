@@ -11,12 +11,16 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import java.lang.*;
-import javafx.collections.FXCollections;
+import javafx.scene.control.cell.PropertyValueFactory;
+import java.util.*;
+import javafx.collections.*;
 
 public class RandomShiftGenerator extends Application {
    private String[] daysArray = {"Sunday", "Monday", "Tuesday",
       "Wednesday", "Thursday", "Friday", "Saturday"};
    Alert alertError = new Alert(AlertType.WARNING);
+   RandomShift rs = new RandomShift();
+   TableView<Shifts> tbShifts;
    
    
    public void start(Stage primaryStage) {
@@ -24,6 +28,29 @@ public class RandomShiftGenerator extends Application {
       GridPane gp = new GridPane();
       gp.setHgap(4);
       gp.setVgap(4);
+      
+      //Initialize new Pane
+      Pane pane = new Pane();
+      
+      //Initialize new vbox
+      VBox vbox = new VBox();
+      
+      //Initialize TableView
+      //Name column
+      TableColumn<Shifts, String> nameColumn = new TableColumn<>("Name");
+      nameColumn.setMinWidth(100);
+      nameColumn.setCellValueFactory(new PropertyValueFactory<>("employeeName"));
+      //Day column
+      TableColumn<Shifts, String> dayColumn = new TableColumn<>("Day");
+      dayColumn.setMinWidth(100);
+      dayColumn.setCellValueFactory(new PropertyValueFactory<>("dayString"));
+      //Hours column
+      TableColumn<Shifts, Double> hoursColumn = new TableColumn<>("Hours");
+      hoursColumn.setMinWidth(20);
+      hoursColumn.setCellValueFactory(new PropertyValueFactory<>("hours"));
+      
+      tbShifts = new TableView<>();
+      
       
       //Controls
       ChoiceBox cb1 = new ChoiceBox(FXCollections.observableArrayList(daysArray));
@@ -97,6 +124,8 @@ public class RandomShiftGenerator extends Application {
          String employeesString = String.format("%.0f", sdEmployees.getValue());
          int numberOfEmployees = Integer.parseInt(employeesString);
          
+         
+         
          //Check if the start day cb is empty
          if (cb1.getSelectionModel().isEmpty()) {
             error += "\n-Start day";
@@ -123,7 +152,7 @@ public class RandomShiftGenerator extends Application {
          }
          //If there are no errors, continue
          if (errors < 1) {
-            RandomShift rs = new RandomShift(startDay, endDay, 
+            rs = new RandomShift(startDay, endDay, 
                hoursDouble, Double.parseDouble(tfMaxHours.getText()), 
                numberOfEmployees);
          } else {
@@ -132,10 +161,32 @@ public class RandomShiftGenerator extends Application {
             alertError.setContentText(error);
             alertError.showAndWait();
          }
+         
+         for (int i = 0; i < (rs.getEndDay() - rs.getStartDay()) + 1; i++) {
+         
+            for (int j = 0; j < rs.getNumberOfEmployees(); j++) {
+               System.out.println("" + rs.getEmployeeName(j) + " on " + rs.getDay(i) + " -> " + rs.getEmployeeHours(i, j));
+               
+            }
+            
+         }
+         
+         //System.out.println("\n\n");
+         
+         //tbShifts.getItems().clear();
+         tbShifts.setItems(getShifts());
+         tbShifts.getColumns().addAll(nameColumn, dayColumn, hoursColumn);
+         
+         vbox.getChildren().clear();
+         vbox.getChildren().add(tbShifts);
+         
       });
       
+      vbox.setPadding(new Insets(250, 0, 0, 0));
+      pane.getChildren().addAll(vbox, gp);
+      
       //Scene and stage initialization
-      Scene scene = new Scene(gp, 350, 250); 
+      Scene scene = new Scene(pane, 350, 550); 
       primaryStage.setTitle("Random Shift Generator");
       primaryStage.setScene(scene);
       primaryStage.show();
@@ -166,6 +217,21 @@ public class RandomShiftGenerator extends Application {
       }
       
       return dayInt;
+   }
+   
+   public ObservableList<Shifts> getShifts() {
+      ObservableList<Shifts> shifts = FXCollections.observableArrayList();
+      
+      for (int i = 0; i < (rs.getEndDay() - rs.getStartDay()) + 1; i++) {
+         
+         for (int j = 0; j < rs.getNumberOfEmployees(); j++) {
+            //System.out.println("" + rs.getEmployeeNumber(j) + " on " + rs.getDay(i) + " -> " + rs.getEmployeeHours(i, j));
+            shifts.add(new Shifts(j, i, rs.getEmployeeHours(i, j)));
+         }
+         
+      }
+      
+      return shifts;
    }
    
 }

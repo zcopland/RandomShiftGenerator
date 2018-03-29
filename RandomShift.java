@@ -5,6 +5,8 @@ Zach Wise-Copland
 
 import java.lang.Math.*;
 import java.util.Random;
+import javafx.scene.layout.*;
+import javafx.scene.control.*;
 
 public class RandomShift {
    //Variables
@@ -16,11 +18,12 @@ public class RandomShift {
    private double maxHoursPerDay = 0;
    private double maxHoursPerWeek = 40;
    private double minShiftHour = 2;
-   private String[] employeeArray;
+   private static String[] employeeArray;
    private double[][] employeeHoursArray;
    private static String[] daysArray = {"Sunday", "Monday", "Tuesday",
       "Wednesday", "Thursday", "Friday", "Saturday"};
    Random rnd = new Random();
+   //private GridPane gpEmployee = new GridPane();
    
    
    //4 arg constructor
@@ -39,13 +42,15 @@ public class RandomShift {
       generateHours();
    }
    
+   public RandomShift () {}
+   
    private void generateHours() {
       //Go through the first dimension of the array
       for (int j = 0; j < (endDay - startDay) + 1; j++) {
          //Go through the second dimension of the array
          for (int i = 0; i < numberOfEmployees; i++) {
             //Assign generic names to the employees
-            employeeArray[i] = "Employee: " + (i +1);
+            employeeArray[i] = "Employee " + (i +1);
             //Get a random number
             double rndDouble = maxHoursPerDay * rnd.nextDouble();
             //If the random shift is < minimum shift hour, set it to 0
@@ -57,18 +62,17 @@ public class RandomShift {
             //Set the value to the employeesHoursArray
             employeeHoursArray[i][j] = Double.parseDouble(strDouble);
             //Display it for the user (in the log)
-            System.out.println("" + employeeArray[i] + " " + dayIntToString(j + startDay) + " -> " + employeeHoursArray[i][j]);
+            //System.out.println("" + employeeArray[i] + " " + dayIntToString(j + startDay) + " -> " + employeeHoursArray[i][j]);
          }
       }
-      //Readability
-      System.out.println("\n------\n");
    }
+   
    
       
    
    
    //Get the day int and convert to readable String
-   private String dayIntToString (int day) {
+   public String dayIntToString (int day) {
       String dayString = "Sunday";     
       switch (day) {
          case 1:
@@ -114,6 +118,15 @@ public class RandomShift {
    }
    public int getNumberOfEmployees() {
       return numberOfEmployees;
+   }
+   public String getEmployeeName(int i) {
+      return employeeArray[i];
+   }
+   public String getDay (int i) {
+      return dayIntToString(i + startDay);
+   }
+   public double getEmployeeHours (int i, int j) {
+      return employeeHoursArray[j][i];
    }
    
    
